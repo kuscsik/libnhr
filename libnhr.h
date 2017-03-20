@@ -173,7 +173,7 @@ typedef enum _nhr_method {
 	 @note To disable `POST` functionality define flag `NHR_NO_POST`. By default enable.
 	 */
 	nhr_method_POST = 2,
-//	nhr_method_PUT,
+	nhr_method_PUT,
 //	nhr_method_DELETE,
 //	nhr_method_HEAD,
 //	nhr_method_CONNECT,
@@ -200,6 +200,7 @@ typedef void (*nhr_on_request_error)(nhr_request request, nhr_error_code error_c
 // String constant "POST"
 #define k_nhr_POST "POST"
 
+#define k_nhr_PUT "PUT"
 
 /**
  @brief String constant "Content-Encoding"

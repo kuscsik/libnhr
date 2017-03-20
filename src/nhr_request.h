@@ -164,6 +164,7 @@ char * nhr_request_create_header_POST(_nhr_request * r, size_t * header_size);
 
 #endif // end of the POST functionality
 
+char * nhr_request_create_header_PUT(_nhr_request * r, size_t * header_size);
 #endif
 
 

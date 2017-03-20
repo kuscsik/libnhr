@@ -62,6 +62,63 @@ char * nhr_request_create_parameters_POST(_nhr_request * r, size_t * parameters_
 	return params;
 }
 
+char * nhr_request_create_header_PUT(_nhr_request * r, size_t * header_size) {
+	size_t buff_size = 0, writed = 0, headers_len = 0, parameters_len = 0;
+	char * buff = NULL, *headers = NULL, *parameters = NULL;
+
+	buff_size = strlen(r->path);
+	buff_size += strlen(r->host);
+
+        if(r->post_data!=NULL)
+            buff_size += 8 + strlen(r->post_data);
+
+	parameters = nhr_request_create_parameters_POST(r, &parameters_len);
+	if (parameters) buff_size += parameters_len;
+
+	headers = r->http_headers ? nhr_request_http_headers(r->http_headers, &headers_len) : NULL;
+	if (headers) buff_size += headers_len;
+
+	buff_size += 1 << 8; // extra size for formatting strings
+
+	buff = (char *)nhr_malloc(buff_size);
+
+	writed = nhr_sprintf(buff, buff_size, "%s %s HTTP/%s\r\n", k_nhr_PUT, r->path, k_nhr_request_http_ver);
+
+	if (r->port == 80) {
+		writed += nhr_sprintf(buff + writed, buff_size - writed, "Host: %s\r\n", r->host);
+	} else {
+		writed += nhr_sprintf(buff + writed, buff_size - writed, "Host: %s:%i\r\n", r->host, (int)r->port);
+	}
+
+	if(r->post_data!=NULL) {
+		writed += nhr_sprintf(buff + writed, buff_size - writed, "%s\n\n", headers);
+        } else if (headers) {
+		writed += nhr_sprintf(buff + writed, buff_size - writed, "%s\n\r\n\r", headers);
+	} else {
+		memcpy(buff + writed, k_nhr_CRLF, k_nhr_CRLF_length);
+		writed += k_nhr_CRLF_length;
+	}
+
+	if (parameters_len > 0 && r->post_data == NULL) {
+		memcpy(buff + writed, parameters, parameters_len);
+		writed += parameters_len;
+		memcpy(buff + writed, k_nhr_double_CRLF, k_nhr_double_CRLF_length);
+		writed += k_nhr_double_CRLF_length;
+	}
+
+        if(r->post_data != NULL) {
+                memcpy(buff + writed, r->post_data, strlen(r->post_data));
+		writed += strlen(r->post_data);
+        }
+
+
+	nhr_free(headers);
+	nhr_free(parameters);
+	buff[writed] = 0;
+	*header_size = writed;
+
+	return buff;
+}
 char * nhr_request_create_header_POST(_nhr_request * r, size_t * header_size) {
 	size_t buff_size = 0, writed = 0, headers_len = 0, parameters_len = 0;
 	char * buff = NULL, *headers = NULL, *parameters = NULL;

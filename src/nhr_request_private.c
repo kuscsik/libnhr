@@ -136,6 +136,8 @@ void nhr_request_send_raw_request(_nhr_request * r) {
 		case nhr_method_POST: header = nhr_request_create_header_POST(r, &header_size); break;
 #endif
 
+                case nhr_method_PUT:
+		    header = nhr_request_create_header_PUT(r, &header_size); break;
 		default:
 			assert(0); //TODO: unsupported method
 			break;
